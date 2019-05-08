@@ -6,11 +6,11 @@ import (
 	"os/exec"
 )
 
-type commands struct {
-	command   string
-	operation string
-	options   []option
-	target    string
+type Commands struct {
+	Command   string
+	Operation string
+	Options   []string
+	Target    string
 }
 
 type option struct {
@@ -38,6 +38,17 @@ type Err struct {
 
 func (e *Err) Error() string {
 	return fmt.Sprintf("[ERROR] *** command : %v, Exit Status : %v, ErrorMessage : %v", e.command, e.status, e.message)
+}
+
+func NetworkInfo(c Commands, n *Network) error {
+	bytes := []byte{}
+	if err := c.output(&bytes); err != nil {
+		return err
+	}
+	if err := n.networkInfo(bytes); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (n *Network) networkInfo(b []byte) error {
@@ -91,26 +102,11 @@ func network(i interface{}) Network {
 
 }
 
-func createOptions(m map[string]string) []option {
-	o := []option{}
-	for k, v := range m {
-		_o := option{
-			key:   k,
-			value: v,
-		}
-		o = append(o, _o)
-	}
-	return o
-}
+func (c *Commands) output(b *[]byte) error {
 
-func (c *commands) output(b *[]byte) error {
+	cs := append([]string{c.Operation}, c.Options...)
 
-	cs := []string{c.operation}
-	for _, v := range c.options {
-		cs = append(cs, v.key, v.value)
-	}
-
-	o, err := exec.Command(c.command, cs...).Output()
+	o, err := exec.Command(c.Command, cs...).Output()
 	if err != nil {
 		return err
 	}
@@ -118,16 +114,13 @@ func (c *commands) output(b *[]byte) error {
 	return nil
 }
 
-func (c *commands) run() error {
+func (c *Commands) run() error {
 
-	cs := []string{c.operation}
-	for _, v := range c.options {
-		cs = append(cs, v.key, v.value)
-	}
+	cs := append([]string{c.Operation}, c.Options...)
 
-	cs = append(cs, c.target)
+	cs = append(cs, c.Target)
 
-	err := exec.Command(c.command, cs...).Run()
+	err := exec.Command(c.Command, cs...).Run()
 	if err != nil {
 		return err
 	}
