@@ -52,29 +52,6 @@ func NetworkInfo(c Commands, n *Network) error {
 	return nil
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-
-//ExecCommand command strings
-type ExecCommand struct {
-	command string
-	args    []string
-}
-
-//ExecNetworkInfo execute commands and get network information
-func ExecNetworkInfo(c ExecCommand, n *Network) error {
-	e := c.createCommand()
-	bytes := []byte{}
-	if err := output(e, &bytes); err != nil {
-		return err
-	}
-	if err := n.networkInfo(bytes); err != nil {
-		return err
-	}
-	return nil
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
 func (n *Network) networkInfo(b []byte) error {
 	var i interface{}
 	if err := json.Unmarshal(b, &i); err != nil {
@@ -158,6 +135,25 @@ func (c *Commands) run() error {
 type ExecuteCommand interface {
 	Run() error
 	Output() ([]byte, error)
+}
+
+//ExecCommand command strings
+type ExecCommand struct {
+	command string
+	args    []string
+}
+
+//ExecNetworkInfo execute commands and get network information
+func ExecNetworkInfo(c ExecCommand, n *Network) error {
+	e := c.createCommand()
+	bytes := []byte{}
+	if err := output(e, &bytes); err != nil {
+		return err
+	}
+	if err := n.networkInfo(bytes); err != nil {
+		return err
+	}
+	return nil
 }
 
 func output(ec ExecuteCommand, b *[]byte) error {
