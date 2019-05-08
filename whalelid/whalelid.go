@@ -40,6 +40,7 @@ func (e *Err) Error() string {
 	return fmt.Sprintf("[ERROR] *** command : %v, Exit Status : %v, ErrorMessage : %v", e.command, e.status, e.message)
 }
 
+//NetworkInfo execute commands and get network information
 func NetworkInfo(c Commands, n *Network) error {
 	bytes := []byte{}
 	if err := c.output(&bytes); err != nil {
@@ -50,6 +51,29 @@ func NetworkInfo(c Commands, n *Network) error {
 	}
 	return nil
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+//ExecCommand command strings
+type ExecCommand struct {
+	command string
+	args    []string
+}
+
+//ExecNetworkInfo execute commands and get network information
+func ExecNetworkInfo(c ExecCommand, n *Network) error {
+	e := c.createCommand()
+	bytes := []byte{}
+	if err := output(e, &bytes); err != nil {
+		return err
+	}
+	if err := n.networkInfo(bytes); err != nil {
+		return err
+	}
+	return nil
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 
 func (n *Network) networkInfo(b []byte) error {
 	var i interface{}
@@ -130,6 +154,7 @@ func (c *Commands) run() error {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+//ExecuteCommand execute interface methods for runnning os commands
 type ExecuteCommand interface {
 	Run() error
 	Output() ([]byte, error)
@@ -149,4 +174,14 @@ func run(ec ExecuteCommand) error {
 		return err
 	}
 	return nil
+}
+
+func createCommand(command string, args ...string) *exec.Cmd {
+	cmd := exec.Command(command, args...)
+	return cmd
+}
+
+func (c ExecCommand) createCommand() *exec.Cmd {
+	cmd := exec.Command(c.command, c.args...)
+	return cmd
 }
