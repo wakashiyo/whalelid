@@ -127,3 +127,26 @@ func (c *Commands) run() error {
 
 	return nil
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+type ExecuteCommand interface {
+	Run() error
+	Output() ([]byte, error)
+}
+
+func output(ec ExecuteCommand, b *[]byte) error {
+	bytes, err := ec.Output()
+	if err != nil {
+		return err
+	}
+	*b = bytes
+	return nil
+}
+
+func run(ec ExecuteCommand) error {
+	if err := ec.Run(); err != nil {
+		return err
+	}
+	return nil
+}
