@@ -13,15 +13,10 @@ type Commands struct {
 	Target    string
 }
 
-type option struct {
-	key   string
-	value string
-}
-
 type Network struct {
-	bridge     string
-	subnet     string
-	gateway    string
+	Bridge     string
+	Subnet     string
+	Gateway    string
 	containers []container
 }
 
@@ -58,9 +53,9 @@ func (n *Network) networkInfo(b []byte) error {
 		return err
 	}
 	net := network(i)
-	n.bridge = net.bridge
-	n.subnet = net.subnet
-	n.gateway = net.gateway
+	n.Bridge = net.Bridge
+	n.Subnet = net.Subnet
+	n.Gateway = net.Gateway
 	n.containers = net.containers
 	return nil
 }
@@ -95,9 +90,9 @@ func network(i interface{}) Network {
 	}
 
 	return Network{
-		bridge:     bridge,
-		subnet:     subnet,
-		gateway:    gateway,
+		Bridge:     bridge,
+		Subnet:     subnet,
+		Gateway:    gateway,
 		containers: containers,
 	}
 
@@ -139,8 +134,8 @@ type ExecuteCommand interface {
 
 //ExecCommand command strings
 type ExecCommand struct {
-	command string
-	args    []string
+	Command string
+	Args    []string
 }
 
 //ExecNetworkInfo execute commands and get network information
@@ -178,6 +173,6 @@ func createCommand(command string, args ...string) *exec.Cmd {
 }
 
 func (c ExecCommand) createCommand() *exec.Cmd {
-	cmd := exec.Command(c.command, c.args...)
+	cmd := exec.Command(c.Command, c.Args...)
 	return cmd
 }
